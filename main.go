@@ -7,12 +7,16 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/tobiasaagaard/localgift-api/config"
+	"github.com/tobiasaagaard/localgift-api/middleware"
 )
 
 func main() {
 	cfg := config.LoadConfig()
 
 	r := mux.NewRouter()
+
+	r.Use(middleware.RequestLogging)
+
 
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
