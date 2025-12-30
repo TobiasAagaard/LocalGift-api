@@ -7,20 +7,20 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/tobiasaagaard/localgift-api/config"
+	"github.com/tobiasaagaard/localgift-api/internal/handlers"
 	"github.com/tobiasaagaard/localgift-api/middleware"
-	"github.com/tobiasaagaard/localgift-api/pkg/response"
 )
 
 func main() {
 	cfg := config.LoadConfig()
 
+	healthHandler := handlers.NewHealthHandler()
+
 	r := mux.NewRouter()
 
 	r.Use(middleware.RequestLogging)
 
-	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		response.Success(w, map[string]string{"Status": "OK"})
-	}).Methods("GET")
+	r.Handle("/health", healthHandler).Methods("GET")
 
 	address := "localhost:" + cfg.Port
 
