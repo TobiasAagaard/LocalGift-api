@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -13,15 +14,23 @@ func main() {
 
 	r := mux.NewRouter()
 
-	address := "localhost:" + cfg.Port
-	fmt.Printf("Server running on %s\n", address)
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	})
 
-	err := http.ListenAndServe(address, r)
-	if err != nil {
-		fmt.Printf("Failed to start server: %v\n", err)
+	address := "localhost:" + cfg.Port
+
+	server := &http.Server{
+		Addr:    address,
+		Handler: r,
 	}
+
+	fmt.Printf("Starting server on %s\n", address)
+
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
+
 }
