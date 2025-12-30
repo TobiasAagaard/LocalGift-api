@@ -6,12 +6,6 @@ import (
 	"net/http"
 )
 
-type Response struct {
-	Success bool        `json:"success"`
-	Data    interface{} `json:"data,omitempty"`
-	Error   string      `json:"error,omitempty"`
-}
-
 func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
@@ -19,15 +13,8 @@ func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
 		log.Printf("Error encoding JSON response: %v", err)
 	}
 }
-
 func Error(w http.ResponseWriter, statusCode int, errMsg string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	if err := json.NewEncoder(w).Encode(Response{
-		Error: errMsg,
-	}); err != nil {
-		log.Printf("Error encoding JSON error response: %v", err)
-	}
+	JSON(w, statusCode, map[string]string{"error": errMsg})
 }
 
 func Success(w http.ResponseWriter, data interface{}) {
@@ -56,4 +43,8 @@ func Unauthorized(w http.ResponseWriter, errMsg string) {
 
 func Forbidden(w http.ResponseWriter, errMsg string) {
 	Error(w, http.StatusForbidden, errMsg)
+}
+
+func NoContent(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusNoContent)
 }
