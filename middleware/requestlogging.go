@@ -8,16 +8,28 @@ import (
 
 type responseWriter struct {
 	http.ResponseWriter
-	statusCode int
+	statusCode  int
+	wroteHeader bool
 }
 
 func (rw *responseWriter) WriteHeader(code int) {
+	if rw.wroteHeader {
+		return
+	}
 	rw.statusCode = code
+	rw.wroteHeader = true
 	rw.ResponseWriter.WriteHeader(code)
 }
 
+func (rw *responseWriter) Write(b []byte) (int, error) {
+	if !rw.wroteHeader {
+		rw.WriteHeader(http.StatusOK)
+	}
+	return rw.ResponseWriter.Write(b)
+}
+
 func RequestLogging(next http.Handler) http.Handler {
-	return http.HandlerFunc((func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		timeStarted := time.Now()
 
 		responseWrapped := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
@@ -27,11 +39,11 @@ func RequestLogging(next http.Handler) http.Handler {
 		duration := time.Since(timeStarted)
 
 		log.Printf(
-			"%s %s %d %dms",
+			"%s %s status=%d %dms",
 			r.Method,
 			r.RequestURI,
 			responseWrapped.statusCode,
 			duration.Milliseconds(),
 		)
-	}))
+	})
 }
