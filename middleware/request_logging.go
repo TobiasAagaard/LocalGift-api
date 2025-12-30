@@ -32,9 +32,12 @@ func RequestLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		timeStarted := time.Now()
 
-		responseWrapped := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+		wrapped := &responseWriter{
+			ResponseWriter: w,
+			statusCode:     http.StatusOK,
+		}
 
-		next.ServeHTTP(responseWrapped, r)
+		next.ServeHTTP(wrapped, r)
 
 		duration := time.Since(timeStarted)
 
@@ -42,7 +45,7 @@ func RequestLogging(next http.Handler) http.Handler {
 			"%s %s status=%d %dms",
 			r.Method,
 			r.RequestURI,
-			responseWrapped.statusCode,
+			wrapped.statusCode,
 			duration.Milliseconds(),
 		)
 	})

@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/tobiasaagaard/localgift-api/config"
 	"github.com/tobiasaagaard/localgift-api/middleware"
+	"github.com/tobiasaagaard/localgift-api/pkg/response"
 )
 
 func main() {
@@ -18,9 +19,7 @@ func main() {
 	r.Use(middleware.RequestLogging)
 
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"OK"}`))
+		response.Success(w, map[string]string{"Status": "OK"})
 	}).Methods("GET")
 
 	address := "localhost:" + cfg.Port
