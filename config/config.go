@@ -28,7 +28,9 @@ func LoadConfig() *Config {
 
 func getEnv(key, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
+		log.Printf("Found env var %s: %s", key, value)
 		return value
 	}
+	log.Printf("Using default for %s: %s", key, defaultValue)
 	return defaultValue
 }
